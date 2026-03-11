@@ -1,0 +1,4 @@
+-- AlterTable
+ALTER TABLE "Shift" ALTER COLUMN "toalEarnings" SET DEFAULT 0,
+ALTER COLUMN "totalExpenses" SET DEFAULT 0,
+ALTER COLUMN "updatedAt" DROP NOT NULL;

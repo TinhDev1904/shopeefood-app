@@ -1,0 +1,114 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// --- 1. Người Dùng (User) ---
+model User {
+  id           String  @id @default(uuid())
+  email        String  @unique
+  externalId   String? @unique
+  passwordHash String
+  name         String?
+  avatarUrl    String?
+  role         String  @default("user")
+  points       Int     @default(0)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  accounts   Account[]
+  categories Category[]
+  budgets    Budget[]
+  @@map("users")
+}
+
+// --- 2. Account ---
+model Account {
+  id      String @id @default(uuid())
+  name    String
+  balance Float
+  userId  String
+  user    User   @relation(fields: [userId], references: [id])
+
+  transactions Transaction[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+// --- 3. Category ---
+model Category {
+  id     String  @id @default(uuid())
+  name   String
+  color  String?
+  userId String
+  user   User    @relation(fields: [userId], references: [id])
+
+  transactions Transaction[]
+  budgets      Budget[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+// Loại category (thu / chi)
+enum CategoryType {
+  INCOME
+  EXPENSE
+}
+
+// --- 4. Giao Dịch (Transaction) ---
+model Transaction {
+  id              String          @id @default(uuid())
+  amount          Decimal         @db.Decimal(19, 4)
+  description     String?
+  type            TransactionType
+  transactionDate DateTime
+  note            String?
+
+  accountId String
+  account   Account @relation(fields: [accountId], references: [id])
+
+  categoryId String?
+  category   Category? @relation(fields: [categoryId], references: [id])
+
+  transferToTransactionId String?
+
+  @@index([accountId])
+  @@index([categoryId])
+  @@index([transactionDate])
+  @@map("transactions")
+}
+
+// Loại giao dịch
+enum TransactionType {
+  INCOME
+  EXPENSE
+  TRANSFER
+}
+
+// --- 5. Budget (Ngân sách) — HỢP NHẤT HOÀN CHỈNH ---
+model Budget {
+  id          String   @id @default(uuid())
+  name        String
+  limitAmount Decimal  @db.Decimal(19, 4)
+  startDate   DateTime @db.Date
+  endDate     DateTime @db.Date
+
+  categoryId String
+  category   Category @relation(fields: [categoryId], references: [id])
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([userId, startDate, endDate])
+  @@map("budgets")
+}
