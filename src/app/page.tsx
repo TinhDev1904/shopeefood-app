@@ -1,3 +1,6 @@
+export const dynamic = 'force-dynamic'; // <- add this to force dynamic render
+
+
 import HomeClient from "@/components/ui/HomeClient";
 import { getMovies } from "@/services/movie.service";
 

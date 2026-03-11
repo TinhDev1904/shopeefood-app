@@ -1,9 +1,6 @@
 'use client';
 
-import { SignIn, useUser } from "@stackframe/stack";
-
-const user = useUser();
-console.log(user);
+import { SignIn } from "@stackframe/stack";
 
 
 const SignInPage = () => {
